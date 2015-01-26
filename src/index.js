@@ -1,3 +1,6 @@
+var isPrimitive = require("is_primitive");
+
+
 var hasOwnProp = Object.prototype.hasOwnProperty,
     nativeDefineProperty = Object.defineProperty,
     emptyObject = {};
@@ -10,11 +13,6 @@ if (!nativeDefineProperty) {
     nativeDefineProperty = function(object, prop, desc) {
         object[prop] = desc.value;
     };
-}
-
-function isPrimitive(obj) {
-    var typeStr;
-    return obj == null || ((typeStr = typeof(obj)) !== "object" && typeStr !== "function");
 }
 
 function privateStore(key, privateKey) {
@@ -72,8 +70,7 @@ function createStore() {
         },
         remove: function(key) {
             var store = get(key);
-
-            return store === emptyObject ? true : delete store.value;
+            return store === emptyObject ? false : delete store.value;
         },
         clear: function() {
             privateKey = {};

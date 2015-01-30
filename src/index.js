@@ -1,19 +1,13 @@
-var isPrimitive = require("is_primitive");
+var has = require("has"),
+    defineProperty = require("define_property"),
+    isPrimitive = require("is_primitive");
 
 
-var hasOwnProp = Object.prototype.hasOwnProperty,
-    nativeDefineProperty = Object.defineProperty,
-    emptyObject = {};
+var emptyObject = {};
 
 
 module.exports = createStore;
 
-
-if (!nativeDefineProperty) {
-    nativeDefineProperty = function(object, prop, desc) {
-        object[prop] = desc.value;
-    };
-}
 
 function privateStore(key, privateKey) {
     var store = {
@@ -21,7 +15,7 @@ function privateStore(key, privateKey) {
         },
         valueOf = key.valueOf;
 
-    nativeDefineProperty(key, "valueOf", {
+    defineProperty(key, "valueOf", {
         value: function(value) {
             return value !== privateKey ? valueOf.apply(this, arguments) : store;
         },
@@ -66,7 +60,7 @@ function createStore() {
             set(key).value = value;
         },
         has: function(key) {
-            return hasOwnProp.call(get(key), "value");
+            return has(get(key), "value");
         },
         remove: function(key) {
             var store = get(key);

@@ -20,6 +20,8 @@
     "grunt-jsbeautifier": ""
   },
   "dependencies": {
+    "has": "nathanfaucett/has",
+    "define_property": "nathanfaucett/define_property",
     "is_primitive": "nathanfaucett/is_primitive"
   }
 }

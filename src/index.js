@@ -3,7 +3,7 @@ var has = require("has"),
     isPrimitive = require("is_primitive");
 
 
-var emptyObject = {
+var emptyStore = {
     value: undefined
 };
 
@@ -23,7 +23,7 @@ function createStore() {
             store = key.valueOf(privateKey);
 
             if (!store || store.identity !== privateKey) {
-                store = emptyObject;
+                store = emptyStore;
             }
 
             return store;
@@ -55,11 +55,11 @@ function createStore() {
         },
         has: function(key) {
             var store = get(key);
-            return store !== emptyObject ? has(store, "value") : false;
+            return store !== emptyStore ? has(store, "value") : false;
         },
         remove: function(key) {
             var store = get(key);
-            return store !== emptyObject ? delete store.value : false;
+            return store !== emptyStore ? store.remove() : false;
         },
         clear: function() {
             privateKey = {};
@@ -68,15 +68,21 @@ function createStore() {
 }
 
 function privateStore(key, privateKey) {
-    var store = {
-            identity: privateKey
-        },
-        valueOf = key.valueOf;
+    var valueOf = key.valueOf || Object.prototype.valueOf,
+        store = {
+            identity: privateKey,
+            remove: function() {
+                key.valueOf = valueOf;
+                return delete store.value;
+            }
+        };
 
     defineProperty(key, "valueOf", {
         value: function(value) {
             return value !== privateKey ? valueOf.apply(this, arguments) : store;
         },
+        configurable: true,
+        enumerable: false,
         writable: true
     });
 

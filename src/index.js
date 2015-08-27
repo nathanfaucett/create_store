@@ -3,11 +3,69 @@ var has = require("has"),
     isPrimitive = require("is_primitive");
 
 
-var emptyObject = {};
+var emptyObject = {
+    value: undefined
+};
 
 
 module.exports = createStore;
 
+
+function createStore() {
+    var privateKey = {};
+
+    function get(key) {
+        var store;
+
+        if (isPrimitive(key)) {
+            throw new TypeError("Invalid value used as key");
+        } else {
+            store = key.valueOf(privateKey);
+
+            if (!store || store.identity !== privateKey) {
+                store = emptyObject;
+            }
+
+            return store;
+        }
+    }
+
+    function set(key) {
+        var store;
+
+        if (isPrimitive(key)) {
+            throw new TypeError("Invalid value used as key");
+        } else {
+            store = key.valueOf(privateKey);
+
+            if (!store || store.identity !== privateKey) {
+                store = privateStore(key, privateKey);
+            }
+
+            return store;
+        }
+    }
+
+    return {
+        get: function(key) {
+            return get(key).value;
+        },
+        set: function(key, value) {
+            set(key).value = value;
+        },
+        has: function(key) {
+            var store = get(key);
+            return store !== emptyObject ? has(store, "value") : false;
+        },
+        remove: function(key) {
+            var store = get(key);
+            return store !== emptyObject ? delete store.value : false;
+        },
+        clear: function() {
+            privateKey = {};
+        }
+    };
+}
 
 function privateStore(key, privateKey) {
     var store = {
@@ -23,51 +81,4 @@ function privateStore(key, privateKey) {
     });
 
     return store;
-}
-
-function createStore() {
-    var privateKey = {};
-
-    function get(key) {
-        if (isPrimitive(key)) {
-            throw new TypeError("Invalid value used as key");
-        }
-
-        return key.valueOf(privateKey) || emptyObject;
-    }
-
-    function set(key) {
-        var store;
-
-        if (isPrimitive(key)) {
-            throw new TypeError("Invalid value used as key");
-        }
-
-        store = key.valueOf(privateKey);
-
-        if (!store || store.identity !== privateKey) {
-            store = privateStore(key, privateKey);
-        }
-
-        return store;
-    }
-
-    return {
-        get: function(key) {
-            return get(key).value;
-        },
-        set: function(key, value) {
-            set(key).value = value;
-        },
-        has: function(key) {
-            return has(get(key), "value");
-        },
-        remove: function(key) {
-            var store = get(key);
-            return store === emptyObject ? false : delete store.value;
-        },
-        clear: function() {
-            privateKey = {};
-        }
-    };
 }

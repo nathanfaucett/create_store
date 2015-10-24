@@ -4,15 +4,18 @@ var has = require("has"),
 
 
 var emptyStore = {
-    value: undefined
-};
+        value: undefined
+    },
+    ObjectPrototype = Object.prototype;
 
 
 module.exports = createStore;
 
 
 function createStore() {
-    var privateKey = {};
+    var privateKey = {},
+        size = 0;
+
 
     function get(key) {
         var store;
@@ -40,6 +43,7 @@ function createStore() {
 
             if (!store || store.identity !== privateKey) {
                 store = privateStore(key, privateKey);
+                size += 1;
             }
 
             return store;
@@ -59,27 +63,41 @@ function createStore() {
         },
         remove: function(key) {
             var store = get(key);
-            return store !== emptyStore ? store.remove() : false;
+
+            if (store !== emptyStore) {
+                size -= 1;
+                return store.remove();
+            } else {
+                return false;
+            }
         },
         clear: function() {
             privateKey = {};
+            size = 0;
+        },
+        size: function() {
+            return size;
         }
     };
 }
 
 function privateStore(key, privateKey) {
-    var valueOf = key.valueOf || Object.prototype.valueOf,
+    var keyValueOf = key.valueOf || ObjectPrototype.valueOf,
         store = {
             identity: privateKey,
-            remove: function() {
-                key.valueOf = valueOf;
+            remove: function remove() {
+                key.valueOf = keyValueOf;
                 return delete store.value;
             }
         };
 
     defineProperty(key, "valueOf", {
-        value: function(value) {
-            return value !== privateKey ? valueOf.apply(this, arguments) : store;
+        value: function valueOf(value) {
+            if (value !== privateKey) {
+                return keyValueOf.apply(this, arguments);
+            } else {
+                return store;
+            }
         },
         configurable: true,
         enumerable: false,

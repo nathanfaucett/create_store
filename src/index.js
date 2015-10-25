@@ -86,19 +86,23 @@ function privateStore(key, privateKey) {
         store = {
             identity: privateKey,
             remove: function remove() {
-                key.valueOf = keyValueOf;
+                if (key.valueOf === valueOf) {
+                    key.valueOf = keyValueOf;
+                }
                 return delete store.value;
             }
         };
 
+    function valueOf(value) {
+        if (value !== privateKey) {
+            return keyValueOf.apply(this, arguments);
+        } else {
+            return store;
+        }
+    }
+
     defineProperty(key, "valueOf", {
-        value: function valueOf(value) {
-            if (value !== privateKey) {
-                return keyValueOf.apply(this, arguments);
-            } else {
-                return store;
-            }
-        },
+        value: valueOf,
         configurable: true,
         enumerable: false,
         writable: true

@@ -1,11 +1,11 @@
 createStore
 =======
 
-create store for the browser and node.js
+create private stores
 
 
 ```javascript
-var createStore = require("create_store");
+var createStore = require("@nathanfaucett/create_store");
 
 
 var store = createStore();

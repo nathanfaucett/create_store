@@ -1,6 +1,6 @@
-var has = require("has"),
-    defineProperty = require("define_property"),
-    isPrimitive = require("is_primitive");
+var has = require("@nathanfaucett/has"),
+    defineProperty = require("@nathanfaucett/define_property"),
+    isPrimitive = require("@nathanfaucett/is_primitive");
 
 
 var emptyStore = {
